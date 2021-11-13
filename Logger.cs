@@ -9,8 +9,10 @@ namespace HNZ.Utils
 
         public Logger(Type type)
         {
-            _name = $"{type.Namespace}.{type.Name}";
+            _name = $"HNZ.{Prefix ?? "unknown"}.{type.Name}";
         }
+
+        public static string Prefix { private get; set; }
 
         public bool IsDebugEnabled { get; set; }
 
