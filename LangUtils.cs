@@ -12,6 +12,7 @@ namespace HNZ.Utils
         {
             return $"[{string.Join(", ", self)}]";
         }
+
         public static string DicToString<K, V>(this IDictionary<K, V> self)
         {
             return $"{{{string.Join(", ", self.Select(p => $"{p.Key}: {p.Value}"))}}}";
@@ -29,6 +30,17 @@ namespace HNZ.Utils
         public static double ElapsedMilliseconds(this Stopwatch self)
         {
             return (double)self.ElapsedTicks / Stopwatch.Frequency;
+        }
+
+        public static bool AddRange<T>(this ISet<T> self, IEnumerable<T> others)
+        {
+            var added = false;
+            foreach (var other in others)
+            {
+                added |= self.Add(other);
+            }
+
+            return added;
         }
     }
 }
