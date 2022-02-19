@@ -42,5 +42,13 @@ namespace HNZ.Utils
 
             return added;
         }
+
+        public static void Increment<K>(this IDictionary<K, int> self, K key, int increment)
+        {
+            int value;
+            self.TryGetValue(key, out value);
+            value += increment;
+            self[key] = value;
+        }
     }
 }
