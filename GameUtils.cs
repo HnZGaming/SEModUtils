@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
 
 namespace HNZ.Utils
 {
@@ -21,6 +23,25 @@ namespace HNZ.Utils
 
             player = default(IMyPlayer);
             return false;
+        }
+
+        public static void GetCharacters(IMyEntity entity, ICollection<IMyCharacter> characters)
+        {
+            var grid = entity as IMyCubeGrid;
+            if (grid != null)
+            {
+                var cockpits = ((MyCubeGrid)grid).OccupiedBlocks;
+                foreach (var cockpit in cockpits)
+                {
+                    characters.Add(cockpit.Pilot);
+                }
+            }
+
+            var character = entity as IMyCharacter;
+            if (character != null)
+            {
+                characters.Add(character);
+            }
         }
     }
 }
