@@ -40,15 +40,5 @@ namespace HNZ.Utils
         {
             return _characterIdToPlayers.TryGetValue(character.EntityId, out player);
         }
-
-        public bool TryGetFaction(IMyCharacter character, out IMyFaction faction)
-        {
-            faction = default(IMyFaction);
-            IMyPlayer player;
-            if (!_characterIdToPlayers.TryGetValue(character.EntityId, out player)) return false;
-
-            faction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(player.IdentityId);
-            return faction != null;
-        }
     }
 }
