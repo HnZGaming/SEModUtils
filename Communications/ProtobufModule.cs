@@ -12,9 +12,9 @@ namespace HNZ.Utils.Communications
         readonly ushort _messageHandlerId;
         readonly ConcurrentQueue<byte[]> _messages;
 
-        protected ProtobufModule()
+        protected ProtobufModule(ushort handlerId)
         {
-            _messageHandlerId = (ushort)nameof(CommandModule).GetHashCode();
+            _messageHandlerId = handlerId;
             _messages = new ConcurrentQueue<byte[]>();
         }
 
@@ -41,7 +41,7 @@ namespace HNZ.Utils.Communications
             }
         }
 
-        protected void SendDataToServer(byte loadId, byte[] load)
+        protected void SendDataToOthers(byte loadId, byte[] load)
         {
             if (loadId == 1)
             {

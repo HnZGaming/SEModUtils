@@ -31,6 +31,11 @@ namespace HNZ.Utils
             MyLog.Default.Error(Format($"{exception.Message}\n{exception.StackTrace}"));
         }
 
+        public void Error(string message)
+        {
+            MyLog.Default.Error(Format($"{message}"));
+        }
+
         public void Debug(object message)
         {
             if (!IsDebugEnabled) return;
