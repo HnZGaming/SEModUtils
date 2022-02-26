@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace HNZ.Utils
+namespace HNZ.Utils.Pools
 {
     public static class ListPool<T>
     {
