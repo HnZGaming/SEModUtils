@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Sandbox.ModAPI;
 
-namespace HNZ.Utils
+namespace HNZ.Utils.Communications
 {
     public static class ProtobufUtils
     {

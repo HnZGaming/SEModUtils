@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Text.RegularExpressions;
 using Sandbox.ModAPI;
+using VRage;
 
 namespace HNZ.Utils.Communications
 {
-    public sealed class CommandModule
+    public sealed class CommandModule : IProtobufListener
     {
         static readonly Logger Log = new Logger(typeof(CommandModule));
 
         readonly ProtobufModule _protobuf;
+        readonly byte _loadId;
         readonly ICommandListener _listener;
         readonly Regex _commandFormat;
         readonly ConcurrentQueue<Command> _messages;
 
-        public CommandModule(ProtobufModule protobuf, string symbol, ICommandListener listener)
+        public CommandModule(ProtobufModule protobuf, byte loadId, string symbol, ICommandListener listener)
         {
             _protobuf = protobuf;
+            _loadId = loadId;
             _listener = listener;
             _commandFormat = new Regex($@"^(?:/|!){symbol} (.+?)$");
             _messages = new ConcurrentQueue<Command>();
@@ -24,14 +28,23 @@ namespace HNZ.Utils.Communications
 
         public void Initialize()
         {
+            _protobuf.AddListener(this);
             MyAPIGateway.Utilities.MessageEntered += OnChatMessageEntered;
-            _protobuf.OnChatCommandSentFromClient += OnChatCommandSentFromClient;
         }
 
         public void Close()
         {
+            _protobuf.RemoveListener(this);
             MyAPIGateway.Utilities.MessageEntered -= OnChatMessageEntered;
-            _protobuf.OnChatCommandSentFromClient -= OnChatCommandSentFromClient;
+        }
+
+        public bool TryProcessProtobuf(byte loadId, BinaryReader binaryReader)
+        {
+            if (loadId != _loadId) return false;
+
+            var command = binaryReader.ReadProtobuf<Command>();
+            _messages.Enqueue(command);
+            return true;
         }
 
         void OnChatMessageEntered(string messageText, ref bool sendToOthers)
@@ -45,7 +58,13 @@ namespace HNZ.Utils.Communications
             }
             else
             {
-                _protobuf.SendChatCommandToServer(command);
+                // send client command to server
+                using (var stream = new ByteStream(1024, true))
+                using (var binaryWriter = new BinaryWriter(stream))
+                {
+                    binaryWriter.WriteProtobuf(command);
+                    _protobuf.SendDataToServer(_loadId, stream.Data);
+                }
             }
         }
 
@@ -65,11 +84,6 @@ namespace HNZ.Utils.Communications
             var playerId = MyAPIGateway.Session.LocalHumanPlayer.IdentityId;
             command = new Command(head, args, steamId, playerId);
             return true;
-        }
-
-        void OnChatCommandSentFromClient(Command command)
-        {
-            _messages.Enqueue(command);
         }
 
         public void FrameUpdate()
