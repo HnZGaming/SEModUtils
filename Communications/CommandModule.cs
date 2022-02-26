@@ -39,8 +39,6 @@ namespace HNZ.Utils.Communications
             Command command;
             if (!TryParseCommand(messageText, out command)) return;
 
-            if (_listener.TryProcessClientCommand(command)) return;
-
             if (MyAPIGateway.Session.IsServer)
             {
                 _messages.Enqueue(command);
@@ -63,7 +61,9 @@ namespace HNZ.Utils.Communications
             var args = new string[parts.Length - 1];
             Array.Copy(parts, 1, args, 0, parts.Length - 1);
 
-            command = new Command(head, args, MyAPIGateway.Session.LocalHumanPlayer.SteamUserId);
+            var steamId = MyAPIGateway.Session.LocalHumanPlayer.SteamUserId;
+            var playerId = MyAPIGateway.Session.LocalHumanPlayer.IdentityId;
+            command = new Command(head, args, steamId, playerId);
             return true;
         }
 
@@ -78,7 +78,7 @@ namespace HNZ.Utils.Communications
             while (_messages.TryDequeue(out command))
             {
                 Log.Info($"command: {command}");
-                _listener.ProcessServerCommand(command);
+                _listener.ProcessCommandOnServer(command);
             }
         }
     }

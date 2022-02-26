@@ -2,7 +2,6 @@
 {
     public interface ICommandListener
     {
-        bool TryProcessClientCommand(Command command);
-        void ProcessServerCommand(Command command);
+        void ProcessCommandOnServer(Command command);
     }
 }

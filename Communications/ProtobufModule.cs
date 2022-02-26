@@ -6,15 +6,17 @@ using VRage;
 
 namespace HNZ.Utils.Communications
 {
-    public abstract class ProtobufModule
+    public sealed class ProtobufModule
     {
         static readonly Logger Log = new Logger(typeof(ProtobufModule));
         readonly ushort _messageHandlerId;
+        readonly IProtobufListener _listener;
         readonly ConcurrentQueue<byte[]> _messages;
 
-        protected ProtobufModule(ushort handlerId)
+        public ProtobufModule(ushort handlerId, IProtobufListener listener)
         {
             _messageHandlerId = handlerId;
+            _listener = listener;
             _messages = new ConcurrentQueue<byte[]>();
         }
 
@@ -41,7 +43,7 @@ namespace HNZ.Utils.Communications
             }
         }
 
-        protected void SendDataToOthers(byte loadId, byte[] load)
+        public void SendDataToOthers(byte loadId, byte[] load)
         {
             if (loadId == 1)
             {
@@ -87,7 +89,7 @@ namespace HNZ.Utils.Communications
                     return;
                 }
 
-                if (TryProcess(loadId, binaryReader))
+                if (_listener.TryProcessProtobuf(loadId, binaryReader))
                 {
                     return;
                 }
@@ -95,7 +97,5 @@ namespace HNZ.Utils.Communications
                 throw new InvalidOperationException($"Invalid load ID: {loadId}");
             }
         }
-
-        protected abstract bool TryProcess(byte loadId, BinaryReader binaryReader);
     }
 }

@@ -19,7 +19,7 @@ namespace HNZ.Utils
         public event Action<T> OnEntered;
         public event Action<T> OnExited;
 
-        public void Close()
+        public void Clear()
         {
             _currentElements.Clear();
             _lastElements.Clear();

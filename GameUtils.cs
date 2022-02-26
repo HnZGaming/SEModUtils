@@ -43,5 +43,11 @@ namespace HNZ.Utils
                 characters.Add(character);
             }
         }
+
+        public static bool IsAdmin(ulong steamId)
+        {
+            return MyAPIGateway.Session.IsServer ||
+                   MyAPIGateway.Session.IsUserAdmin(steamId);
+        }
     }
 }
