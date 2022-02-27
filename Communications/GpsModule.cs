@@ -33,7 +33,8 @@ namespace HNZ.Utils.Communications
 
         public void ShowLocalGps(GpsSource src)
         {
-            Log.Info($"gps outgoing: {src}");
+            //Log.Info($"gps outgoing: {src}");
+
             using (var stream = new ByteStream(1024))
             using (var writer = new BinaryWriter(stream))
             {
@@ -47,7 +48,7 @@ namespace HNZ.Utils.Communications
             if (loadId != _loadId) return false;
 
             var src = binaryReader.ReadProtobuf<GpsSource>();
-            Log.Info($"gps incoming: {src}");
+            //Log.Info($"gps incoming: {src}");
 
             IMyGps oldGps;
             if (_gps.TryGetValue(src.Id, out oldGps))
