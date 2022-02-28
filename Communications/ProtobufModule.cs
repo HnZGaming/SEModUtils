@@ -63,7 +63,7 @@ namespace HNZ.Utils.Communications
 
                 if (MyAPIGateway.Session.IsServer && !MyAPIGateway.Utilities.IsDedicated)
                 {
-                    Log.Info("routing local server message to client");
+                    Log.Debug("routing local server message to client");
                     var player = MyAPIGateway.Session.LocalHumanPlayer;
                     OnProtobufMessageReceived(_messageHandlerId, stream.Data, player.SteamUserId, true);
                     return;
@@ -96,7 +96,7 @@ namespace HNZ.Utils.Communications
             using (var binaryReader = new BinaryReader(stream))
             {
                 var loadId = binaryReader.ReadByte();
-                Log.Info($"protobuf received id: {loadId}");
+                Log.Debug($"protobuf received id: {loadId}");
                 foreach (var listener in _listeners)
                 {
                     if (listener.TryProcessProtobuf(loadId, binaryReader))

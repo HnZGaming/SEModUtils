@@ -51,6 +51,7 @@ namespace HNZ.Utils.Communications
         {
             Command command;
             if (!TryParseCommand(messageText, out command)) return;
+            sendToOthers = false;
 
             if (MyAPIGateway.Session.IsServer)
             {

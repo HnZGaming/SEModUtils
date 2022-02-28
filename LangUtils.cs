@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -49,6 +50,11 @@ namespace HNZ.Utils
             self.TryGetValue(key, out value);
             value += increment;
             self[key] = value;
+        }
+
+        public static TimeSpan TimeSpanSinceMidnight(this DateTime self)
+        {
+            return new TimeSpan(0, self.Hour, self.Minute, self.Second, self.Millisecond);
         }
     }
 }
