@@ -50,20 +50,23 @@ namespace HNZ.Utils.Communications
             var src = binaryReader.ReadProtobuf<GpsSource>();
             //Log.Info($"gps incoming: {src}");
 
-            IMyGps oldGps;
-            if (_gps.TryGetValue(src.Id, out oldGps))
+            UpdateLocalGps(src);
+            return true;
+        }
+
+        void UpdateLocalGps(GpsSource src)
+        {
+            IMyGps gps;
+            if (!_gps.TryGetValue(src.Id, out gps))
             {
-                MyAPIGateway.Session.GPS.RemoveLocalGps(oldGps);
-                _gps.Remove(src.Id);
+                gps = _gps[src.Id] = MyAPIGateway.Session.GPS.Create(src.Name, src.Description, src.Position, true, false);
+                MyAPIGateway.Session.GPS.AddLocalGps(gps);
             }
 
-            var gps = MyAPIGateway.Session.GPS.Create(src.Name, src.Description, src.Position, true, false);
+            gps.Name = src.Name;
+            gps.Description = src.Description;
+            gps.Coords = src.Position;
             gps.GPSColor = src.Color;
-            MyAPIGateway.Session.GPS.AddLocalGps(gps);
-
-            _gps.Add(src.Id, gps);
-
-            return true;
         }
     }
 }
