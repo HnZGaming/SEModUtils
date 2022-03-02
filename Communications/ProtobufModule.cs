@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using HNZ.Utils.Logging;
 using Sandbox.ModAPI;
 using VRage;
 
@@ -9,7 +10,7 @@ namespace HNZ.Utils.Communications
 {
     public sealed class ProtobufModule
     {
-        static readonly Logger Log = new Logger(typeof(ProtobufModule));
+        static readonly Logger Log = LoggerManager.Create(nameof(ProtobufModule));
         readonly ushort _messageHandlerId;
         readonly List<IProtobufListener> _listeners;
         readonly ConcurrentQueue<byte[]> _messages;

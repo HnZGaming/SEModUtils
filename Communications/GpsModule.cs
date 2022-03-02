@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using HNZ.Utils.Logging;
 using Sandbox.ModAPI;
 using VRage;
 using VRage.Game.ModAPI;
@@ -8,7 +9,7 @@ namespace HNZ.Utils.Communications
 {
     public sealed class GpsModule : IProtobufListener
     {
-        static readonly Logger Log = new Logger(typeof(GpsModule));
+        static readonly Logger Log = LoggerManager.Create(nameof(GpsModule));
 
         readonly ProtobufModule _protobufModule;
         readonly byte _loadId;

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using HNZ.Utils.Logging;
 
 namespace HNZ.Utils
 {
     public sealed class UpdateDiagnostics
     {
-        static readonly Logger Log = new Logger(typeof(UpdateDiagnostics));
+        static readonly Logger Log = LoggerManager.Create(nameof(UpdateDiagnostics));
         readonly Action _onUpdateEnd;
         Stopwatch _stopwatch;
 

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text.RegularExpressions;
+using HNZ.Utils.Logging;
 using Sandbox.ModAPI;
 using VRage;
 
@@ -9,7 +10,7 @@ namespace HNZ.Utils.Communications
 {
     public sealed class CommandModule : IProtobufListener
     {
-        static readonly Logger Log = new Logger(typeof(CommandModule));
+        static readonly Logger Log = LoggerManager.Create(nameof(CommandModule));
 
         readonly ProtobufModule _protobuf;
         readonly byte _loadId;

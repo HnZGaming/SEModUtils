@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using HNZ.Utils.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
@@ -8,7 +9,7 @@ namespace HNZ.Utils
 {
     public static class GameUtils
     {
-        static readonly Logger Log = new Logger(typeof(GameUtils));
+        static readonly Logger Log = LoggerManager.Create(nameof(GameUtils));
 
         public static bool TryGetPlayerBySteamId(ulong steamId, out IMyPlayer player)
         {

@@ -1,11 +1,12 @@
 ﻿using System;
+using HNZ.Utils.Logging;
 using Sandbox.ModAPI;
 
 namespace HNZ.Utils
 {
     public sealed class ContentFile<T> where T : class
     {
-        readonly Logger Log = new Logger(typeof(ContentFile<T>));
+        readonly Logger Log = LoggerManager.Create(nameof(ContentFile<T>));
         readonly string _fileName;
 
         public ContentFile(string fileName, T defaultContent)
