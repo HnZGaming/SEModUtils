@@ -12,5 +12,10 @@ namespace HNZ.Utils.Logging
 
         [XmlAttribute]
         public string Prefix;
+
+        public override string ToString()
+        {
+            return $"{nameof(Severity)}: {Severity}, {nameof(Prefix)}: {Prefix}";
+        }
     }
 }

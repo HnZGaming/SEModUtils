@@ -56,5 +56,23 @@ namespace HNZ.Utils
         {
             return new TimeSpan(0, self.Hour, self.Minute, self.Second, self.Millisecond);
         }
+
+        public static string HoursToString(float hours)
+        {
+            var d = Math.Floor(hours / 24);
+            var rh = Math.Floor((hours / 24 - d) * 24);
+            if (d >= 1f) return $"{d} days {rh} hours";
+
+            var h = Math.Floor(hours);
+            var rm = Math.Floor((hours - h) * 60);
+            if (hours >= 1f) return $"{h} hours {rm} minutes";
+
+            var m = Math.Floor(hours * 60);
+            var rs = Math.Floor((hours * 60 - m) * 60);
+            if (m >= 1f) return $"{m} minutes {rs} seconds";
+
+            var s = Math.Floor(hours * 60 * 60);
+            return $"{s} seconds";
+        }
     }
 }

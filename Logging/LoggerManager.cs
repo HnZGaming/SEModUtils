@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
+using VRage.Utils;
 
 namespace HNZ.Utils.Logging
 {
     public static class LoggerManager
     {
         static readonly List<Logger> _loggers;
+        static readonly List<LogConfig> _configs;
 
         static LoggerManager()
         {
             _loggers = new List<Logger>();
+            _configs = new List<LogConfig>();
         }
 
         public static string Prefix { get; private set; }
@@ -23,22 +26,30 @@ namespace HNZ.Utils.Logging
             }
         }
 
-        public static void SetLogConfig(ICollection<LogConfig> configs)
+        public static void SetLogConfig(IEnumerable<LogConfig> configs)
         {
+            _configs.Clear();
+            _configs.AddRange(configs);
+
+            MyLog.Default.Info(configs.SeqToString());
+
             foreach (var logger in _loggers)
-            foreach (var config in configs)
             {
-                logger.SetConfig(config);
+                logger.SetConfig(_configs);
             }
         }
 
         public static Logger Create(string name)
         {
+            MyLog.Default.Info($"LoggerManager.Create({name})");
+
             var logger = new Logger
             {
                 Prefix = Prefix,
                 Name = name,
             };
+
+            logger.SetConfig(_configs);
 
             _loggers.Add(logger);
             return logger;

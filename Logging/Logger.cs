@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using VRage.Utils;
 
 namespace HNZ.Utils.Logging
@@ -9,23 +10,23 @@ namespace HNZ.Utils.Logging
         public string Name { get; set; } = "";
         public MyLogSeverity Severity { get; set; } = MyLogSeverity.Info;
 
-        public void SetConfig(LogConfig config)
+        public void SetConfig(IEnumerable<LogConfig> configs)
         {
-            if (Name.StartsWith(config.Prefix))
+            MyLog.Default.Info($"SetConfig '{Prefix}.{Name}'");
+            foreach (var config in configs)
             {
-                Severity = config.Severity;
+                MyLog.Default.Info($"'{config.Prefix}' {config.Severity}");
+                if ($"{Prefix}.{Name}".StartsWith(config.Prefix))
+                {
+                    Severity = (MyLogSeverity)Math.Min((int)Severity, (int)config.Severity);
+                    MyLog.Default.Info($"accepted: {Severity}");
+                }
             }
         }
 
         string Format(object message)
         {
             return $"{Prefix}.{Name}: {message}";
-        }
-
-        public void Log(MyLogSeverity level, object message)
-        {
-            if (Severity > level) return;
-            MyLog.Default.Log(level, Format(message));
         }
 
         public void Info(object message)
@@ -49,7 +50,6 @@ namespace HNZ.Utils.Logging
         public void Debug(object message)
         {
             if (Severity > MyLogSeverity.Debug) return;
-
             MyLog.Default.Info(Format(message));
         }
 
