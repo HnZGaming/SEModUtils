@@ -15,12 +15,14 @@ namespace HNZ.Utils.Communications.Gps
         readonly ProtobufModule _protobufModule;
         readonly byte _loadId;
         readonly Dictionary<long, IMyGps> _gps;
+        readonly Dictionary<long, GpsFollow> _gpsFollows;
 
         public GpsModule(ProtobufModule protobufModule, byte loadId)
         {
             _protobufModule = protobufModule;
             _loadId = loadId;
             _gps = new Dictionary<long, IMyGps>();
+            _gpsFollows = new Dictionary<long, GpsFollow>();
         }
 
         public void Initialize()
@@ -31,6 +33,16 @@ namespace HNZ.Utils.Communications.Gps
         public void Close()
         {
             _protobufModule.RemoveListener(this);
+            _gps.Clear();
+            _gpsFollows.Clear();
+        }
+
+        public void Update()
+        {
+            foreach (var p in _gpsFollows)
+            {
+                p.Value.Update();
+            }
         }
 
         public void SendAddOrUpdateGps(GpsSource src, bool reliable = true, ulong? playerId = null)
@@ -87,14 +99,17 @@ namespace HNZ.Utils.Communications.Gps
             IMyGps gps;
             if (!_gps.TryGetValue(src.Id, out gps))
             {
-                gps = _gps[src.Id] = MyAPIGateway.Session.GPS.Create(src.Name, src.Description, src.Position, true, false);
+                _gps[src.Id] = gps = MyAPIGateway.Session.GPS.Create(src.Name, src.Description, src.Position, true, false);
+                _gpsFollows[src.Id] = new GpsFollow(gps);
                 MyAPIGateway.Session.GPS.AddLocalGps(gps);
             }
 
             gps.Name = src.Name;
             gps.Description = src.Description;
-            gps.Coords = src.Position;
             gps.GPSColor = src.Color;
+
+            var gpsFollow = _gpsFollows[src.Id];
+            gpsFollow.SetTargetPosition(src.Position);
         }
 
         void RemoveGps(long gpsId)
@@ -104,6 +119,7 @@ namespace HNZ.Utils.Communications.Gps
             {
                 MyAPIGateway.Session.GPS.RemoveLocalGps(gps);
                 _gps.Remove(gpsId);
+                _gpsFollows.Remove(gpsId);
             }
         }
     }
