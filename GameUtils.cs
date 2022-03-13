@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HNZ.Utils.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
@@ -60,6 +62,16 @@ namespace HNZ.Utils
             {
                 grid.SwitchPower();
             }
+        }
+
+        public static int GetIntValue(this MyModStorageComponentBase self, Guid guid)
+        {
+            string forgeCountStr;
+            self.TryGetValue(guid, out forgeCountStr);
+
+            int forgeCount;
+            int.TryParse(forgeCountStr ?? "", out forgeCount);
+            return forgeCount;
         }
     }
 }
