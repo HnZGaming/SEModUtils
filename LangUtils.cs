@@ -52,6 +52,18 @@ namespace HNZ.Utils
             self[key] = value;
         }
 
+        public static bool TryGetFirstValue<T>(this IReadOnlyList<T> self, out T value)
+        {
+            if (self.Count > 0)
+            {
+                value = self[0];
+                return true;
+            }
+
+            value = default(T);
+            return false;
+        }
+
         public static TimeSpan TimeSpanSinceMidnight(this DateTime self)
         {
             return new TimeSpan(0, self.Hour, self.Minute, self.Second, self.Millisecond);
