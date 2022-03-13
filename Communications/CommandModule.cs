@@ -39,7 +39,7 @@ namespace HNZ.Utils.Communications
             MyAPIGateway.Utilities.MessageEntered -= OnChatMessageEntered;
         }
 
-        public bool TryProcessProtobuf(byte loadId, BinaryReader binaryReader)
+        bool IProtobufListener.TryProcessProtobuf(byte loadId, BinaryReader binaryReader)
         {
             if (loadId != _loadId) return false;
 
@@ -88,7 +88,7 @@ namespace HNZ.Utils.Communications
             return true;
         }
 
-        public void FrameUpdate()
+        public void Update()
         {
             Command command;
             while (_messages.TryDequeue(out command))

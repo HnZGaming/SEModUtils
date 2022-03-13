@@ -54,7 +54,7 @@ namespace HNZ.Utils.Communications
             }
         }
 
-        public void SendDataToClients(byte loadId, byte[] load)
+        public void SendDataToClients(byte loadId, byte[] load, bool reliable = true, ulong? playerId = null)
         {
             using (var stream = new ByteStream(1024, true))
             using (var binaryWriter = new BinaryWriter(stream))
@@ -70,7 +70,14 @@ namespace HNZ.Utils.Communications
                     return;
                 }
 
-                MyAPIGateway.Multiplayer.SendMessageToOthers(_messageHandlerId, stream.Data);
+                if (playerId == null)
+                {
+                    MyAPIGateway.Multiplayer.SendMessageToOthers(_messageHandlerId, stream.Data, reliable);
+                }
+                else
+                {
+                    MyAPIGateway.Multiplayer.SendMessageTo(_messageHandlerId, stream.Data, playerId.Value, reliable);
+                }
             }
         }
 

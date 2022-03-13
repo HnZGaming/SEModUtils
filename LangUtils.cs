@@ -57,7 +57,7 @@ namespace HNZ.Utils
             return new TimeSpan(0, self.Hour, self.Minute, self.Second, self.Millisecond);
         }
 
-        public static string HoursToString(float hours)
+        public static string HoursToString(double hours)
         {
             var d = Math.Floor(hours / 24);
             var rh = Math.Floor((hours / 24 - d) * 24);

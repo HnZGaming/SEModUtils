@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using HNZ.Utils.Pools;
 
 namespace HNZ.Utils
 {
@@ -8,15 +8,11 @@ namespace HNZ.Utils
     {
         readonly ConcurrentQueue<T> _addedElements;
         readonly ConcurrentQueue<T> _removedElements;
-        readonly List<T> _tmpAddedElements;
-        readonly List<T> _tmpRemovedElements;
 
         public AddRemoveObserver()
         {
             _addedElements = new ConcurrentQueue<T>();
             _removedElements = new ConcurrentQueue<T>();
-            _tmpAddedElements = new List<T>();
-            _tmpRemovedElements = new List<T>();
         }
 
         public event Action<T> OnAdded;
@@ -40,27 +36,25 @@ namespace HNZ.Utils
 
         public void Update()
         {
-            try
-            {
-                // minimum locking
-                _removedElements.DequeueAll(_tmpRemovedElements);
-                _addedElements.DequeueAll(_tmpAddedElements);
+            var tmpRemovedElements = ListPool<T>.Create();
+            var tmpAddedElements = ListPool<T>.Create();
 
-                foreach (var element in _tmpRemovedElements)
-                {
-                    OnRemoved?.Invoke(element);
-                }
+            // minimum locking
+            _removedElements.DequeueAll(tmpRemovedElements);
+            _addedElements.DequeueAll(tmpAddedElements);
 
-                foreach (var element in _tmpAddedElements)
-                {
-                    OnAdded?.Invoke(element);
-                }
-            }
-            finally
+            foreach (var element in tmpRemovedElements)
             {
-                _tmpRemovedElements.Clear();
-                _tmpAddedElements.Clear();
+                OnRemoved?.Invoke(element);
             }
+
+            foreach (var element in tmpAddedElements)
+            {
+                OnAdded?.Invoke(element);
+            }
+
+            ListPool<T>.Release(tmpRemovedElements);
+            ListPool<T>.Release(tmpAddedElements);
         }
     }
 }
