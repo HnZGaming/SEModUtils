@@ -74,5 +74,16 @@ namespace HNZ.Utils
             var s = Math.Floor(hours * 60 * 60);
             return $"{s} seconds";
         }
+
+        public static bool RunOnce(ref bool called)
+        {
+            if (!called)
+            {
+                called = true;
+                return true;
+            }
+
+            return false;
+        }
     }
 }
