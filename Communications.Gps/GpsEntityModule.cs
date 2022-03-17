@@ -43,7 +43,8 @@ namespace HNZ.Utils.Communications.Gps
                     Position = gpsEntity.Position,
                     Radius = gpsEntity.Radius,
                     Color = gpsEntity.Color,
-                });
+                    EntityId = gpsEntity.EntityId,
+                }, false);
             }
         }
     }

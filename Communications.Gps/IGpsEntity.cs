@@ -10,5 +10,6 @@ namespace HNZ.Utils.Communications.Gps
         Vector3D Position { get; }
         double Radius { get; }
         Color Color { get; }
+        long EntityId { get; }
     }
 }

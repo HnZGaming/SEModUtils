@@ -26,9 +26,12 @@ namespace HNZ.Utils.Communications.Gps
         [ProtoMember(6)]
         public Color Color { get; set; }
 
+        [ProtoMember(7)]
+        public long EntityId { get; set; }
+
         public override string ToString()
         {
-            return $"{nameof(Id)}: {Id}, {nameof(Name)}: {Name}, {nameof(Description)}: {Description}, {nameof(Position)}: {Position}, {nameof(Radius)}: {Radius}, {nameof(Color)}: {Color}";
+            return $"{nameof(Id)}: {Id}, {nameof(Name)}: {Name}, {nameof(Description)}: {Description}, {nameof(Position)}: {Position}, {nameof(Radius)}: {Radius}, {nameof(Color)}: {Color}, {nameof(EntityId)}: {EntityId}";
         }
     }
 }

@@ -110,6 +110,7 @@ namespace HNZ.Utils.Communications.Gps
 
             var gpsFollow = _gpsFollows[src.Id];
             gpsFollow.SetTargetPosition(src.Position);
+            gpsFollow.SetTargetEntity(src.EntityId);
         }
 
         void RemoveGps(long gpsId)
