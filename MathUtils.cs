@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.Library.Utils;
 using VRageMath;
 
 namespace HNZ.Utils
@@ -40,6 +41,17 @@ namespace HNZ.Utils
                 SmoothDamp(current.X, target.X, ref currentVelocity.X, smoothTime, maxSpeed, deltaTime),
                 SmoothDamp(current.Y, target.Y, ref currentVelocity.Y, smoothTime, maxSpeed, deltaTime),
                 SmoothDamp(current.Z, target.Z, ref currentVelocity.Z, smoothTime, maxSpeed, deltaTime));
+        }
+
+        public static Vector3D GetRandomUnitDirection()
+        {
+            var dir = new Vector3D(
+                MyRandom.Instance.GetRandomFloat(-1f, 1f),
+                MyRandom.Instance.GetRandomFloat(-1f, 1f),
+                MyRandom.Instance.GetRandomFloat(-1f, 1f));
+            dir.Normalize();
+
+            return dir;
         }
     }
 }

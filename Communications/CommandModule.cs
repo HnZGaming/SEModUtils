@@ -93,8 +93,15 @@ namespace HNZ.Utils.Communications
             Command command;
             while (_messages.TryDequeue(out command))
             {
-                Log.Info($"command: {command}");
-                _listener.ProcessCommandOnServer(command);
+                try
+                {
+                    Log.Info($"command: {command}");
+                    _listener.ProcessCommandOnServer(command);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
             }
         }
     }

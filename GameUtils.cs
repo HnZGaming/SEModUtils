@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using HNZ.Utils.Logging;
+using HNZ.Utils.Pools;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace HNZ.Utils
 {
@@ -72,6 +75,53 @@ namespace HNZ.Utils
             int forgeCount;
             int.TryParse(forgeCountStr ?? "", out forgeCount);
             return forgeCount;
+        }
+
+        public static int GetEntityCountInSphere(BoundingSphereD sphere)
+        {
+            var entities = ListPool<MyEntity>.Create();
+            MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
+            var entityCount = entities.Count;
+            ListPool<MyEntity>.Release(entities);
+            return entityCount;
+        }
+
+        public static int GetPlayerCharacterCountInSphere(BoundingSphereD sphere)
+        {
+            var entities = ListPool<MyEntity>.Create();
+            var characters = ListPool<IMyCharacter>.Create();
+
+            MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
+            foreach (var entity in entities)
+            {
+                GetCharacters(entity, characters);
+            }
+
+            var count = 0;
+            foreach (var character in characters)
+            {
+                if (character.IsPlayer)
+                {
+                    count += 1;
+                }
+            }
+
+            ListPool<MyEntity>.Release(entities);
+            ListPool<IMyCharacter>.Release(characters);
+
+            return count;
+        }
+
+        public static bool IsNullOrClosed(this IMyEntity entity)
+        {
+            if (entity == null) return true;
+            if (entity.Closed) return true;
+            return false;
+        }
+
+        public static bool EverySeconds(int seconds)
+        {
+            return MyAPIGateway.Session.GameplayFrameCounter % (seconds * 60) == 0;
         }
     }
 }

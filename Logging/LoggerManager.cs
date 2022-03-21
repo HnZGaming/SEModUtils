@@ -26,7 +26,7 @@ namespace HNZ.Utils.Logging
             }
         }
 
-        public static void SetLogConfig(IEnumerable<LogConfig> configs)
+        public static void SetConfigs(IEnumerable<LogConfig> configs)
         {
             _configs.Clear();
             _configs.AddRange(configs);
