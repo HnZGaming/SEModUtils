@@ -58,7 +58,7 @@ namespace HNZ.Utils.Communications
             {
                 _messages.Enqueue(command);
             }
-            else
+            else if (!_listener.ProcessCommandOnClient(command))
             {
                 // send client command to server
                 using (var stream = new ByteStream(1024, true))
