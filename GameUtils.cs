@@ -4,7 +4,6 @@ using HNZ.Utils.Logging;
 using HNZ.Utils.Pools;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using VRage;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -139,8 +138,9 @@ namespace HNZ.Utils
             for (var i = 0; i < 100; i++)
             {
                 // get a random position
-                var r = searchRadius * MyRandom.Instance.NextFloat(0, 1);
-                position = origin + MathUtils.GetRandomUnitDirection() * r;
+                var rand = (float)MyRandom.Instance.Next(0, 100) / 100;
+                var radius = searchRadius * rand;
+                position = origin + MathUtils.GetRandomUnitDirection() * radius;
 
                 // check for gravity
                 float gravityInterference;
