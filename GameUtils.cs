@@ -4,9 +4,11 @@ using HNZ.Utils.Logging;
 using HNZ.Utils.Pools;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using VRage;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -86,11 +88,12 @@ namespace HNZ.Utils
             return entityCount;
         }
 
-        public static int GetPlayerCharacterCountInSphere(BoundingSphereD sphere)
+        public static bool HasCharactersARound(this IMyEntity self, float radius)
         {
             var entities = ListPool<MyEntity>.Create();
             var characters = ListPool<IMyCharacter>.Create();
 
+            var sphere = new BoundingSphereD(self.GetPosition(), radius);
             MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
             foreach (var entity in entities)
             {
@@ -109,7 +112,7 @@ namespace HNZ.Utils
             ListPool<MyEntity>.Release(entities);
             ListPool<IMyCharacter>.Release(characters);
 
-            return count;
+            return count > 0;
         }
 
         public static bool IsNullOrClosed(this IMyEntity entity)
@@ -119,9 +122,40 @@ namespace HNZ.Utils
             return false;
         }
 
+        public static T OrNull<T>(this T entity) where T : class, IMyEntity
+        {
+            if (entity == null) return null;
+            if (entity.Closed) return null;
+            return entity;
+        }
+
         public static bool EverySeconds(int seconds)
         {
             return MyAPIGateway.Session.GameplayFrameCounter % (seconds * 60) == 0;
+        }
+
+        public static bool TryGetRandomPosition(Vector3D origin, float searchRadius, float clearanceRadius, out Vector3D position)
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                // get a random position
+                var r = searchRadius * MyRandom.Instance.NextFloat(0, 1);
+                position = origin + MathUtils.GetRandomUnitDirection() * r;
+
+                // check for gravity
+                float gravityInterference;
+                var gravity = MyAPIGateway.Physics.CalculateNaturalGravityAt(position, out gravityInterference);
+                if (gravity != Vector3.Zero) continue;
+
+                // check for space
+                var sphere = new BoundingSphereD(position, clearanceRadius);
+                if (GetEntityCountInSphere(sphere) > 0) continue;
+
+                return true;
+            }
+
+            position = default(Vector3D);
+            return false;
         }
     }
 }

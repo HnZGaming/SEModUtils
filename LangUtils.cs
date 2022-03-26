@@ -44,6 +44,12 @@ namespace HNZ.Utils
             }
         }
 
+        public static T GetFirstOrElse<T>(this IReadOnlyList<T> self, T defaultValue)
+        {
+            if (self.Count == 0) return defaultValue;
+            return self[0];
+        }
+
         public static double ElapsedMilliseconds(this Stopwatch self)
         {
             return (double)self.ElapsedTicks / Stopwatch.Frequency;
