@@ -9,6 +9,22 @@ namespace HNZ.Utils
     // utils without dependency to game
     public static class LangUtils
     {
+        public static void AssertNull<T>(T self) where T : class
+        {
+            if (self == null)
+            {
+                throw new ArgumentNullException();
+            }
+        }
+
+        public static void NullOrDefault<T>(ref T self, T defaultValue) where T : class
+        {
+            if (self == null)
+            {
+                self = defaultValue;
+            }
+        }
+
         public static string SeqToString<T>(this IEnumerable<T> self)
         {
             return $"[{string.Join(", ", self)}]";
@@ -26,6 +42,12 @@ namespace HNZ.Utils
             {
                 other?.Add(element);
             }
+        }
+
+        public static T GetFirstOrElse<T>(this IReadOnlyList<T> self, T defaultValue)
+        {
+            if (self.Count == 0) return defaultValue;
+            return self[0];
         }
 
         public static double ElapsedMilliseconds(this Stopwatch self)

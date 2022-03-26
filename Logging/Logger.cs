@@ -12,16 +12,16 @@ namespace HNZ.Utils.Logging
 
         public void SetConfig(IEnumerable<LogConfig> configs)
         {
-            MyLog.Default.Info($"SetConfig '{Prefix}.{Name}'");
+            Severity = MyLogSeverity.Info;
             foreach (var config in configs)
             {
-                MyLog.Default.Info($"'{config.Prefix}' {config.Severity}");
                 if ($"{Prefix}.{Name}".StartsWith(config.Prefix))
                 {
                     Severity = (MyLogSeverity)Math.Min((int)Severity, (int)config.Severity);
-                    MyLog.Default.Info($"accepted: {Severity}");
                 }
             }
+
+            MyLog.Default.Info($"'{Prefix}.{Name}'.SetConfig({configs.SeqToString()}) -> {Severity}");
         }
 
         string Format(object message)
