@@ -74,6 +74,7 @@ namespace HNZ.Utils.Communications
         {
             command = new Command();
             var match = _commandFormat.Match(messageText);
+            Log.Info($"parsing command: \"{messageText}\", format: {_commandFormat}, result: {match.Success}");
             if (!match.Success) return false;
 
             var str = match.Groups[1].Value;
