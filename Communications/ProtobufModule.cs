@@ -105,6 +105,7 @@ namespace HNZ.Utils.Communications
             {
                 var loadId = binaryReader.ReadByte();
                 Log.Debug($"protobuf received id: {loadId}");
+
                 foreach (var listener in _listeners)
                 {
                     if (listener.TryProcessProtobuf(loadId, binaryReader))
