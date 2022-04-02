@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using HNZ.Utils.Logging;
 using Sandbox.ModAPI;
 using VRage;
@@ -62,11 +63,16 @@ namespace HNZ.Utils.Communications
                 binaryWriter.Write(loadId);
                 binaryWriter.Write(load);
 
+                // local server
                 if (MyAPIGateway.Session.IsServer && !MyAPIGateway.Utilities.IsDedicated)
                 {
                     Log.Debug("routing local server message to client");
                     var player = MyAPIGateway.Session.LocalHumanPlayer;
-                    OnProtobufMessageReceived(_messageHandlerId, stream.Data, player.SteamUserId, true);
+                    if (playerIds?.Contains(player.SteamUserId) ?? true)
+                    {
+                        OnProtobufMessageReceived(_messageHandlerId, stream.Data, player.SteamUserId, true);
+                    }
+
                     return;
                 }
 

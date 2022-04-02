@@ -157,5 +157,15 @@ namespace HNZ.Utils
             position = default(Vector3D);
             return false;
         }
+
+        public static void PlaySound(string cueName)
+        {
+            var character = MyAPIGateway.Session?.LocalHumanPlayer?.Character;
+            if (character == null) return;
+
+            var emitter = new MyEntity3DSoundEmitter(character as MyEntity);
+            var sound = new MySoundPair(cueName);
+            emitter.PlaySound(sound);
+        }
     }
 }
