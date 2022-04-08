@@ -36,8 +36,8 @@ namespace HNZ.Utils
 
         public void Update()
         {
-            var tmpRemovedElements = ListPool<T>.Create();
-            var tmpAddedElements = ListPool<T>.Create();
+            var tmpRemovedElements = ListPool<T>.Get();
+            var tmpAddedElements = ListPool<T>.Get();
 
             // minimum locking
             _removedElements.DequeueAll(tmpRemovedElements);

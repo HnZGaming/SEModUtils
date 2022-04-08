@@ -12,7 +12,7 @@ namespace HNZ.Utils.Pools
             _pool = new ConcurrentBag<List<T>>();
         }
 
-        public static List<T> Create()
+        public static List<T> Get()
         {
             List<T> list;
             if (_pool.TryTake(out list))
