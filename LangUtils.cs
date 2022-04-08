@@ -119,5 +119,10 @@ namespace HNZ.Utils
 
             return false;
         }
+
+        public static TimeSpan Seconds(this float self)
+        {
+            return TimeSpan.FromSeconds(self);
+        }
     }
 }
