@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using HNZ.Utils.Logging;
 using Sandbox.ModAPI;
 using VRage;
@@ -54,7 +55,7 @@ namespace HNZ.Utils.Communications
             }
         }
 
-        public void SendDataToClients(byte loadId, byte[] load, bool reliable = true, ulong? playerId = null)
+        public void SendDataToClients(byte loadId, byte[] load, bool reliable = true, IEnumerable<ulong> playerIds = null)
         {
             using (var stream = new ByteStream(1024, true))
             using (var binaryWriter = new BinaryWriter(stream))
@@ -62,21 +63,29 @@ namespace HNZ.Utils.Communications
                 binaryWriter.Write(loadId);
                 binaryWriter.Write(load);
 
+                // local server
                 if (MyAPIGateway.Session.IsServer && !MyAPIGateway.Utilities.IsDedicated)
                 {
                     Log.Debug("routing local server message to client");
                     var player = MyAPIGateway.Session.LocalHumanPlayer;
-                    OnProtobufMessageReceived(_messageHandlerId, stream.Data, player.SteamUserId, true);
+                    if (playerIds?.Contains(player.SteamUserId) ?? true)
+                    {
+                        OnProtobufMessageReceived(_messageHandlerId, stream.Data, player.SteamUserId, true);
+                    }
+
                     return;
                 }
 
-                if (playerId == null)
+                if (playerIds == null)
                 {
                     MyAPIGateway.Multiplayer.SendMessageToOthers(_messageHandlerId, stream.Data, reliable);
                 }
                 else
                 {
-                    MyAPIGateway.Multiplayer.SendMessageTo(_messageHandlerId, stream.Data, playerId.Value, reliable);
+                    foreach (var playerId in playerIds)
+                    {
+                        MyAPIGateway.Multiplayer.SendMessageTo(_messageHandlerId, stream.Data, playerId, reliable);
+                    }
                 }
             }
         }

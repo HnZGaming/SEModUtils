@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using HNZ.Utils.Pools;
 using Sandbox.Game.Entities;
 using SpaceEngineers.Game.ModAPI;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace HNZ.Utils
 {
@@ -64,6 +67,16 @@ namespace HNZ.Utils
             {
                 safeZoneBlock.EnableSafeZone(false);
             }
+        }
+
+        public void CollectInSphere(ref BoundingSphereD sphere)
+        {
+            var entities = ListPool<MyEntity>.Get();
+
+            MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
+            Collect(entities);
+
+            ListPool<MyEntity>.Release(entities);
         }
     }
 }

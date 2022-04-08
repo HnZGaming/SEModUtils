@@ -80,7 +80,7 @@ namespace HNZ.Utils
 
         public static int GetEntityCountInSphere(BoundingSphereD sphere)
         {
-            var entities = ListPool<MyEntity>.Create();
+            var entities = ListPool<MyEntity>.Get();
             MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
             var entityCount = entities.Count;
             ListPool<MyEntity>.Release(entities);
@@ -89,8 +89,8 @@ namespace HNZ.Utils
 
         public static bool HasCharactersARound(this IMyEntity self, float radius)
         {
-            var entities = ListPool<MyEntity>.Create();
-            var characters = ListPool<IMyCharacter>.Create();
+            var entities = ListPool<MyEntity>.Get();
+            var characters = ListPool<IMyCharacter>.Get();
 
             var sphere = new BoundingSphereD(self.GetPosition(), radius);
             MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
@@ -156,6 +156,16 @@ namespace HNZ.Utils
 
             position = default(Vector3D);
             return false;
+        }
+
+        public static void PlaySound(string cueName)
+        {
+            var character = MyAPIGateway.Session?.LocalHumanPlayer?.Character;
+            if (character == null) return;
+
+            var emitter = new MyEntity3DSoundEmitter(character as MyEntity);
+            var sound = new MySoundPair(cueName);
+            emitter.PlaySound(sound);
         }
     }
 }

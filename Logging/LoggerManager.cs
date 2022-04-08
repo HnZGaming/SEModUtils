@@ -31,7 +31,7 @@ namespace HNZ.Utils.Logging
             _configs.Clear();
             _configs.AddRange(configs);
 
-            MyLog.Default.Info(configs.SeqToString());
+            MyLog.Default.Info($"LoggerManager({Prefix}).SetConfigs({configs.SeqToString()})");
 
             foreach (var logger in _loggers)
             {
@@ -41,7 +41,7 @@ namespace HNZ.Utils.Logging
 
         public static Logger Create(string name)
         {
-            MyLog.Default.Info($"LoggerManager.Create({name})");
+            MyLog.Default.Info($"LoggerManager({Prefix}).Create({name})");
 
             var logger = new Logger
             {
