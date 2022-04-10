@@ -9,11 +9,11 @@ namespace HNZ.Utils
     // utils without dependency to game
     public static class LangUtils
     {
-        public static void AssertNull<T>(T self) where T : class
+        public static void AssertNull<T>(T self, string message = "n/a") where T : class
         {
             if (self == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException($"null assertion: {message}");
             }
         }
 
