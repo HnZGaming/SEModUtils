@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HNZ.Utils.Logging;
 using HNZ.Utils.Pools;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
@@ -166,6 +167,27 @@ namespace HNZ.Utils
             var emitter = new MyEntity3DSoundEmitter(character as MyEntity);
             var sound = new MySoundPair(cueName);
             emitter.PlaySound(sound);
+        }
+
+        public static void DumpAllInventories(IMyEntity entity)
+        {
+            for (var i = 0; i < entity.InventoryCount; i++)
+            {
+                var inventory = (MyInventory)entity.GetInventory(i);
+                DumpInventory(inventory);
+            }
+        }
+
+        public static void DumpInventory(MyInventory inventory)
+        {
+            var entity = inventory.Entity;
+            foreach (var item in inventory.GetItems())
+            {
+                var boundingBox = entity.PositionComp.WorldAABB;
+                MyFloatingObjects.EnqueueInventoryItemSpawn(item, boundingBox, Vector3D.Zero);
+            }
+
+            inventory.Clear(true);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using HNZ.Utils.Logging;
 using HNZ.Utils.Pools;
 using Sandbox.Game.Entities;
 using SpaceEngineers.Game.ModAPI;
@@ -11,6 +12,8 @@ namespace HNZ.Utils
 {
     public sealed class SafeZoneSuppressor
     {
+        static readonly Logger Log = LoggerManager.Create(nameof(SafeZoneSuppressor));
+
         readonly List<MySafeZone> _inboundSafeZones;
         readonly List<IMySafeZoneBlock> _inboundSafeZoneBlocks;
 
@@ -19,6 +22,8 @@ namespace HNZ.Utils
             _inboundSafeZones = new List<MySafeZone>();
             _inboundSafeZoneBlocks = new List<IMySafeZoneBlock>();
         }
+
+        public string TargetSafeZoneNamePrefix { private get; set; }
 
         public void Clear()
         {
@@ -58,14 +63,22 @@ namespace HNZ.Utils
 
         public void Suppress()
         {
-            foreach (var safeZone in _inboundSafeZones)
-            {
-                safeZone.Enabled = false;
-            }
-
             foreach (var safeZoneBlock in _inboundSafeZoneBlocks)
             {
-                safeZoneBlock.EnableSafeZone(false);
+                if (safeZoneBlock.Enabled)
+                {
+                    safeZoneBlock.Enabled = false;
+                    Log.Info($"suppressed safe zone block: {safeZoneBlock.CubeGrid?.DisplayName}");
+                }
+            }
+
+            foreach (var safeZone in _inboundSafeZones)
+            {
+                if (safeZone.Enabled && (safeZone.DisplayName ?? "").StartsWith(TargetSafeZoneNamePrefix ?? ""))
+                {
+                    safeZone.Enabled = false;
+                    Log.Info($"suppressed safe zone: {safeZone.DisplayName ?? safeZone.Name}");
+                }
             }
         }
 
