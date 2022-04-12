@@ -8,6 +8,7 @@ using Sandbox.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Game.ObjectBuilders.Components;
 using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRageMath;
@@ -129,7 +130,7 @@ namespace HNZ.Utils
             return entity;
         }
 
-        public static bool EverySeconds(int seconds)
+        public static bool EverySeconds(float seconds)
         {
             return MyAPIGateway.Session.GameplayFrameCounter % (seconds * 60) == 0;
         }
@@ -189,5 +190,46 @@ namespace HNZ.Utils
 
             inventory.Clear(true);
         }
+
+        public static bool IsOwnedByAnyFactions(this IMyCubeGrid grid, ICollection<long> factionIds)
+        {
+            foreach (var ownerId in grid.BigOwners)
+            {
+                var faction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(ownerId);
+                if (faction == null) continue;
+
+                if (factionIds.Contains(faction.FactionId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool GetGroupFactionIds(this IMyCubeGrid self, ISet<long> ownerIds, GridLinkTypeEnum linkType)
+        {
+            var added = false;
+            var grids = ListPool<IMyCubeGrid>.Get();
+            var group = self.GetGridGroup(linkType);
+            group.GetGrids(grids);
+            foreach (var grid in grids)
+            foreach (var ownerId in grid.BigOwners)
+            {
+                added |= ownerIds.Add(ownerId);
+            }
+
+            ListPool<IMyCubeGrid>.Release(grids);
+            return added;
+        }
+
+        public static bool IsDamageAllowed(MyEntity entity)
+        {
+            return MySessionComponentSafeZones.IsActionAllowed(
+                entity,
+                CastProhibit(MySessionComponentSafeZones.AllowedActions, 1));
+        }
+
+        static T CastProhibit<T>(T ptr, object val) => (T)val;
     }
 }

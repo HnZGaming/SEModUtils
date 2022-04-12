@@ -12,18 +12,24 @@ namespace HNZ.Utils
 {
     public sealed class SafeZoneSuppressor
     {
+        public interface IFilter
+        {
+            bool CanSuppress(MySafeZone safeZone);
+            bool CanSuppress(IMySafeZoneBlock mySafeZoneBlock);
+        }
+
         static readonly Logger Log = LoggerManager.Create(nameof(SafeZoneSuppressor));
 
+        readonly IFilter _filter;
         readonly List<MySafeZone> _inboundSafeZones;
         readonly List<IMySafeZoneBlock> _inboundSafeZoneBlocks;
 
-        public SafeZoneSuppressor()
+        public SafeZoneSuppressor(IFilter filter)
         {
+            _filter = filter;
             _inboundSafeZones = new List<MySafeZone>();
             _inboundSafeZoneBlocks = new List<IMySafeZoneBlock>();
         }
-
-        public string TargetSafeZoneNamePrefix { private get; set; }
 
         public void Clear()
         {
@@ -41,21 +47,24 @@ namespace HNZ.Utils
                 var safeZone = inboundEntity as MySafeZone;
                 if (safeZone != null)
                 {
-                    _inboundSafeZones.Add(safeZone);
-                }
+                    // delegate to block filter
+                    if (safeZone.SafeZoneBlockId != 0) continue;
 
-                var safeZoneBlock = inboundEntity as IMySafeZoneBlock;
-                if (safeZoneBlock != null)
-                {
-                    _inboundSafeZoneBlocks.Add(safeZoneBlock);
+                    if (_filter.CanSuppress(safeZone))
+                    {
+                        _inboundSafeZones.Add(safeZone);
+                    }
                 }
 
                 var grid = inboundEntity as IMyCubeGrid;
                 if (grid != null)
                 {
-                    foreach (var inlineSafeZoneBlock in grid.GetFatBlocks<IMySafeZoneBlock>())
+                    foreach (var safeZoneBlock in grid.GetFatBlocks<IMySafeZoneBlock>())
                     {
-                        _inboundSafeZoneBlocks.Add(inlineSafeZoneBlock);
+                        if (_filter.CanSuppress(safeZoneBlock))
+                        {
+                            _inboundSafeZoneBlocks.Add(safeZoneBlock);
+                        }
                     }
                 }
             }
@@ -74,7 +83,7 @@ namespace HNZ.Utils
 
             foreach (var safeZone in _inboundSafeZones)
             {
-                if (safeZone.Enabled && (safeZone.DisplayName ?? "").StartsWith(TargetSafeZoneNamePrefix ?? ""))
+                if (safeZone.Enabled)
                 {
                     safeZone.Enabled = false;
                     Log.Info($"suppressed safe zone: {safeZone.DisplayName ?? safeZone.Name}");
