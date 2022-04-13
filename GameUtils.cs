@@ -133,29 +133,23 @@ namespace HNZ.Utils
             return MyAPIGateway.Session.GameplayFrameCounter % (seconds * 60) == 0;
         }
 
-        public static bool TryGetRandomPosition(Vector3D origin, float searchRadius, float clearanceRadius, out Vector3D position)
+        public static bool TryGetRandomPosition(BoundingSphereD search, float clearance, float maxGravity, out Vector3D position)
         {
-            for (var i = 0; i < 100; i++)
-            {
-                // get a random position
-                var rand = (float)MyRandom.Instance.Next(0, 100) / 100;
-                var radius = searchRadius * rand;
-                position = origin + MathUtils.GetRandomUnitDirection() * radius;
+            // get a random position
+            var random = (float)MyRandom.Instance.Next(0, 100) / 100;
+            var randomRadius = search.Radius * random;
+            position = search.Center + MathUtils.GetRandomUnitDirection() * randomRadius;
 
-                // check for gravity
-                float gravityInterference;
-                var gravity = MyAPIGateway.Physics.CalculateNaturalGravityAt(position, out gravityInterference);
-                if (gravity != Vector3.Zero) continue;
+            // check for gravity
+            float gravityInterference;
+            var gravity = MyAPIGateway.Physics.CalculateNaturalGravityAt(position, out gravityInterference);
+            if (gravity.Length() > maxGravity) return false;
 
-                // check for space
-                var sphere = new BoundingSphereD(position, clearanceRadius);
-                if (GetEntityCountInSphere(sphere) > 0) continue;
+            // check for space
+            var sphere = new BoundingSphereD(position, clearance);
+            if (GetEntityCountInSphere(sphere) > 0) return false;
 
-                return true;
-            }
-
-            position = default(Vector3D);
-            return false;
+            return true;
         }
 
         public static void PlaySound(string cueName)
