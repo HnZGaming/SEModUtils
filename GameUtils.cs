@@ -7,7 +7,6 @@ using Sandbox.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -78,16 +77,29 @@ namespace HNZ.Utils
             return forgeCount;
         }
 
-        public static int GetEntityCountInSphere(BoundingSphereD sphere)
+        public static bool HasAnyGridsInSphere(BoundingSphereD sphere)
         {
             var entities = ListPool<MyEntity>.Get();
-            MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
-            var entityCount = entities.Count;
-            ListPool<MyEntity>.Release(entities);
-            return entityCount;
+            try
+            {
+                MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, entities);
+                foreach (var entity in entities)
+                {
+                    if (entity is IMyCubeGrid)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            finally
+            {
+                ListPool<MyEntity>.Release(entities);
+            }
         }
 
-        public static bool HasCharactersARound(this IMyEntity self, float radius)
+        public static bool HasCharactersInRadius(this IMyEntity self, float radius)
         {
             var entities = ListPool<MyEntity>.Get();
             var characters = ListPool<IMyCharacter>.Get();
@@ -136,9 +148,7 @@ namespace HNZ.Utils
         public static bool TryGetRandomPosition(BoundingSphereD search, float clearance, float maxGravity, out Vector3D position)
         {
             // get a random position
-            var random = (float)MyRandom.Instance.Next(0, 100) / 100;
-            var randomRadius = search.Radius * random;
-            position = search.Center + MathUtils.GetRandomUnitDirection() * randomRadius;
+            position = MathUtils.GetRandomPosition(search);
 
             // check for gravity
             float gravityInterference;
@@ -147,7 +157,7 @@ namespace HNZ.Utils
 
             // check for space
             var sphere = new BoundingSphereD(position, clearance);
-            if (GetEntityCountInSphere(sphere) > 0) return false;
+            if (HasAnyGridsInSphere(sphere)) return false;
 
             return true;
         }
@@ -160,6 +170,29 @@ namespace HNZ.Utils
             var emitter = new MyEntity3DSoundEmitter(character as MyEntity);
             var sound = new MySoundPair(cueName);
             emitter.PlaySound(sound);
+        }
+
+        public static bool TestSurfaceFlat(MyPlanet planet, Vector3D origin, float width, float error)
+        {
+            var baseLength = (planet.PositionComp.GetPosition() - origin).Length();
+            for (var x = 0; x < 2; x++)
+            for (var y = 0; y < 2; y++)
+            for (var z = 0; z < 2; z++)
+            {
+                var offset = new Vector3D
+                {
+                    X = (x * 2 - 1) * width,
+                    Y = (y * 2 - 1) * width,
+                    Z = (z * 2 - 1) * width,
+                };
+
+                var point = origin + offset;
+                var surfacePoint = planet.GetClosestSurfacePointGlobal(point);
+                var length = (planet.PositionComp.GetPosition() - surfacePoint).Length();
+                if (Math.Abs(length - baseLength) > error) return false;
+            }
+
+            return true;
         }
     }
 }

@@ -43,6 +43,11 @@ namespace HNZ.Utils
                 SmoothDamp(current.Z, target.Z, ref currentVelocity.Z, smoothTime, maxSpeed, deltaTime));
         }
 
+        public static float GetRandomNormal()
+        {
+            return (float)MyRandom.Instance.Next(0, 100) / 100;
+        }
+
         public static Vector3D GetRandomUnitDirection()
         {
             var dir = new Vector3D(
@@ -52,6 +57,18 @@ namespace HNZ.Utils
             dir.Normalize();
 
             return dir;
+        }
+
+        public static Vector3D GetRandomPosition(BoundingSphereD sphere)
+        {
+            var randomRadius = sphere.Radius * GetRandomNormal();
+            return sphere.Center + GetRandomUnitDirection() * randomRadius;
+        }
+
+        public static Vector3D Normalized(this Vector3D self)
+        {
+            self.Normalize();
+            return self;
         }
     }
 }
