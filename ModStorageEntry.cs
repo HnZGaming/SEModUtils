@@ -30,5 +30,10 @@ namespace HNZ.Utils
             string v;
             return storage.TryGetValue(KeyGuid, out v) && v == Value;
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(Value)}: {Value}, {nameof(KeyGuid)}: {KeyGuid}";
+        }
     }
 }
