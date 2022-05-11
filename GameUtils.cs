@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HNZ.Utils.Logging;
 using HNZ.Utils.Pools;
 using Sandbox.Game.Entities;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -193,6 +194,27 @@ namespace HNZ.Utils
             }
 
             return true;
+        }
+
+        public static void UpdateStorageValue(this IMyEntity self, Guid key, string value)
+        {
+            if (self.Storage == null)
+            {
+                self.Storage = new MyModStorageComponent();
+            }
+
+            self.Storage[key] = value;
+        }
+
+        public static bool TryGetStorageValue(this IMyEntity self, Guid key, out string value)
+        {
+            if (self.Storage == null)
+            {
+                value = null;
+                return false;
+            }
+
+            return self.Storage.TryGetValue(key, out value);
         }
     }
 }
