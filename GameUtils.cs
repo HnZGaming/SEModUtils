@@ -89,10 +89,9 @@ namespace HNZ.Utils
             return entityCount;
         }
 
-        public static bool HasCharactersARound(this IMyEntity self, float radius)
+        public static void GetCharacters(this IMyEntity self, float radius, ICollection<IMyCharacter> characters)
         {
             var entities = ListPool<MyEntity>.Get();
-            var characters = ListPool<IMyCharacter>.Get();
 
             var sphere = new BoundingSphereD(self.GetPosition(), radius);
             MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
@@ -101,19 +100,23 @@ namespace HNZ.Utils
                 GetCharacters(entity, characters);
             }
 
-            var count = 0;
+            ListPool<MyEntity>.Release(entities);
+        }
+
+        public static bool HasCharactersAround(this IMyEntity self, float radius)
+        {
+            var characters = ListPool<IMyCharacter>.Get();
+            self.GetCharacters(radius, characters);
+
             foreach (var character in characters)
             {
                 if (character.IsPlayer)
                 {
-                    count += 1;
+                    return true;
                 }
             }
 
-            ListPool<MyEntity>.Release(entities);
-            ListPool<IMyCharacter>.Release(characters);
-
-            return count > 0;
+            return false;
         }
 
         public static bool IsNullOrClosed(this IMyEntity entity)
