@@ -4,12 +4,11 @@ using HNZ.Utils.Logging;
 using HNZ.Utils.Pools;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using VRage.Game.ObjectBuilders.Components;
-using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -80,13 +79,26 @@ namespace HNZ.Utils
             return forgeCount;
         }
 
-        public static int GetEntityCountInSphere(BoundingSphereD sphere)
+        public static bool HasAnyGridsInSphere(BoundingSphereD sphere)
         {
             var entities = ListPool<MyEntity>.Get();
-            MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere, entities);
-            var entityCount = entities.Count;
-            ListPool<MyEntity>.Release(entities);
-            return entityCount;
+            try
+            {
+                MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, entities);
+                foreach (var entity in entities)
+                {
+                    if (entity is IMyCubeGrid)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            finally
+            {
+                ListPool<MyEntity>.Release(entities);
+            }
         }
 
         public static void GetCharacters(this IMyEntity self, float radius, ICollection<IMyCharacter> characters)
@@ -103,7 +115,7 @@ namespace HNZ.Utils
             ListPool<MyEntity>.Release(entities);
         }
 
-        public static bool HasCharactersAround(this IMyEntity self, float radius)
+        public static bool HasCharactersInRadius(this IMyEntity self, float radius)
         {
             var characters = ListPool<IMyCharacter>.Get();
             self.GetCharacters(radius, characters);
@@ -138,29 +150,21 @@ namespace HNZ.Utils
             return MyAPIGateway.Session.GameplayFrameCounter % (seconds * 60) == 0;
         }
 
-        public static bool TryGetRandomPosition(Vector3D origin, float searchRadius, float clearanceRadius, out Vector3D position)
+        public static bool TryGetRandomPosition(BoundingSphereD search, float clearance, float maxGravity, out Vector3D position)
         {
-            for (var i = 0; i < 100; i++)
-            {
-                // get a random position
-                var rand = (float)MyRandom.Instance.Next(0, 100) / 100;
-                var radius = searchRadius * rand;
-                position = origin + MathUtils.GetRandomUnitDirection() * radius;
+            // get a random position
+            position = MathUtils.GetRandomPosition(search);
 
-                // check for gravity
-                float gravityInterference;
-                var gravity = MyAPIGateway.Physics.CalculateNaturalGravityAt(position, out gravityInterference);
-                if (gravity != Vector3.Zero) continue;
+            // check for gravity
+            float gravityInterference;
+            var gravity = MyAPIGateway.Physics.CalculateNaturalGravityAt(position, out gravityInterference);
+            if (gravity.Length() > maxGravity) return false;
 
-                // check for space
-                var sphere = new BoundingSphereD(position, clearanceRadius);
-                if (GetEntityCountInSphere(sphere) > 0) continue;
+            // check for space
+            var sphere = new BoundingSphereD(position, clearance);
+            if (HasAnyGridsInSphere(sphere)) return false;
 
-                return true;
-            }
-
-            position = default(Vector3D);
-            return false;
+            return true;
         }
 
         public static void PlaySound(string cueName)
@@ -234,5 +238,49 @@ namespace HNZ.Utils
         }
 
         static T CastProhibit<T>(T ptr, object val) => (T)val;
+
+        public static bool TestSurfaceFlat(MyPlanet planet, Vector3D origin, float width, float error)
+        {
+            var baseLength = (planet.PositionComp.GetPosition() - origin).Length();
+            for (var x = 0; x < 2; x++)
+            for (var y = 0; y < 2; y++)
+            for (var z = 0; z < 2; z++)
+            {
+                var offset = new Vector3D
+                {
+                    X = (x * 2 - 1) * width,
+                    Y = (y * 2 - 1) * width,
+                    Z = (z * 2 - 1) * width,
+                };
+
+                var point = origin + offset;
+                var surfacePoint = planet.GetClosestSurfacePointGlobal(point);
+                var length = (planet.PositionComp.GetPosition() - surfacePoint).Length();
+                if (Math.Abs(length - baseLength) > error) return false;
+            }
+
+            return true;
+        }
+
+        public static void UpdateStorageValue(this IMyEntity self, Guid key, string value)
+        {
+            if (self.Storage == null)
+            {
+                self.Storage = new MyModStorageComponent();
+            }
+
+            self.Storage[key] = value;
+        }
+
+        public static bool TryGetStorageValue(this IMyEntity self, Guid key, out string value)
+        {
+            if (self.Storage == null)
+            {
+                value = null;
+                return false;
+            }
+
+            return self.Storage.TryGetValue(key, out value);
+        }
     }
 }

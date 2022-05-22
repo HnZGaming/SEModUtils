@@ -23,12 +23,27 @@ namespace HNZ.Utils
         [XmlAttribute]
         public string Value;
 
-        public bool TestPresence(MyModStorageComponentBase storage)
+        public ModStorageEntry()
+        {
+        }
+
+        public ModStorageEntry(Guid keyGuid, string value)
+        {
+            KeyGuid = keyGuid;
+            Value = value;
+        }
+
+        public bool Test(MyModStorageComponentBase storage)
         {
             if (storage == null) return false;
 
             string v;
             return storage.TryGetValue(KeyGuid, out v) && v == Value;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Value)}: {Value}, {nameof(KeyGuid)}: {KeyGuid}";
         }
     }
 }
