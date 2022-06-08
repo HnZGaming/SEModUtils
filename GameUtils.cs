@@ -6,6 +6,7 @@ using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
+using VRage;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -196,6 +197,25 @@ namespace HNZ.Utils
             }
 
             inventory.Clear(true);
+        }
+
+        public static Dictionary<string, MyFixedPoint> GetAllInventoryItems(IMyEntity entity)
+        {
+            var d = new Dictionary<string, MyFixedPoint>();
+            for (var i = 0; i < entity.InventoryCount; i++)
+            {
+                var inventory = (MyInventory)entity.GetInventory(i);
+                foreach (var item in inventory.GetItems())
+                {
+                    var name = $"{item.Content.TypeId}.{item.Content.SubtypeName}";
+                    MyFixedPoint amount;
+                    d.TryGetValue(name, out amount);
+                    amount += item.Amount;
+                    d[name] = amount;
+                }
+            }
+
+            return d;
         }
 
         public static bool IsOwnedByAnyFactions(this IMyCubeGrid grid, ICollection<long> factionIds)
