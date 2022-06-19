@@ -214,7 +214,7 @@ namespace HNZ.Utils
             return false;
         }
 
-        public static bool GetGroupFactionIds(this IMyCubeGrid self, ISet<long> ownerIds, GridLinkTypeEnum linkType)
+        public static bool GetGroupOwnerIds(this IMyCubeGrid self, ISet<long> ownerIds, GridLinkTypeEnum linkType)
         {
             var added = false;
             var grids = ListPool<IMyCubeGrid>.Get();
@@ -262,6 +262,39 @@ namespace HNZ.Utils
             return true;
         }
 
+        public static void GetBigOwnerFactions(this IMyCubeGrid self, ICollection<IMyFaction> factions)
+        {
+            foreach (var bigOwner in self.BigOwners)
+            {
+                var faction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(bigOwner);
+                if (faction != null)
+                {
+                    factions.Add(faction);
+                }
+            }
+        }
+
+        public static bool TryGetFaction(this IMyCubeGrid self, out IMyFaction faction)
+        {
+            var factions = ListPool<IMyFaction>.Get();
+            try
+            {
+                self.GetBigOwnerFactions(factions);
+                if (factions.Count == 0)
+                {
+                    faction = default(IMyFaction);
+                    return false;
+                }
+
+                faction = factions[0];
+                return true;
+            }
+            finally
+            {
+                ListPool<IMyFaction>.Release(factions);
+            }
+        }
+
         public static void UpdateStorageValue(this IMyEntity self, Guid key, string value)
         {
             if (self.Storage == null)
@@ -281,6 +314,12 @@ namespace HNZ.Utils
             }
 
             return self.Storage.TryGetValue(key, out value);
+        }
+
+        public static bool TestStorageKeyValue(this IMyEntity self, Guid key, string value)
+        {
+            string v;
+            return self.TryGetStorageValue(key, out v) && v == value;
         }
     }
 }
