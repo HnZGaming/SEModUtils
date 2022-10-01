@@ -9,7 +9,7 @@ namespace HNZ.Utils
     {
         static readonly Logger Log = LoggerManager.Create(nameof(ModStorageEntry));
 
-        // todo maybe Guid just works with the XML parser
+        // todo check if the XML parser supports Guid
         [XmlIgnore]
         public Guid KeyGuid { get; private set; }
 
