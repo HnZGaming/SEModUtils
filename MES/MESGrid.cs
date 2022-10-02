@@ -43,7 +43,7 @@ namespace HNZ.Utils.MES
 
         public bool Closed => _grid == null;
 
-        public bool TryInitialize(MatrixD spawnMatrix, bool ignoreSafetyCheck)
+        public bool TryInitialize(MatrixD spawnMatrix, bool ignoreSafetyCheck, string profileId)
         {
             Log.Info($"spawning: {_spawnGroup} at {spawnMatrix.Translation}");
 
@@ -53,7 +53,7 @@ namespace HNZ.Utils.MES
                     Vector3.Zero,
                     ignoreSafetyCheck,
                     null,
-                    nameof(MesCustomBossSpawner)))
+                    profileId))
             {
                 return false;
             }
