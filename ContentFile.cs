@@ -41,13 +41,18 @@ namespace HNZ.Utils
             WriteFile();
         }
 
+        public string ToXml()
+        {
+            return MyAPIGateway.Utilities.SerializeToXML(Content);
+        }
+
         public void WriteFile()
         {
             try
             {
                 using (var writer = MyAPIGateway.Utilities.WriteFileInWorldStorage(_fileName, typeof(T)))
                 {
-                    writer.Write(MyAPIGateway.Utilities.SerializeToXML(Content));
+                    writer.Write(ToXml());
                     Log.Debug($"Wrote file: \"{_fileName}\": {Content}");
                 }
             }
