@@ -364,5 +364,12 @@ namespace HNZ.Utils
                 writer.Write(fileContent);
             }
         }
+
+        // if this is the server in multi-player -> false
+        // if this is a client in multi-player -> true
+        // if this is a client in single-player -> true
+        public static bool IsClient =>
+            !MyAPIGateway.Utilities.IsDedicated ||
+            !MyAPIGateway.Session.IsServer;
     }
 }
