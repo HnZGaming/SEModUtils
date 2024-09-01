@@ -341,5 +341,28 @@ namespace HNZ.Utils
             string v;
             return self.TryGetStorageValue(key, out v) && v == value;
         }
+
+        public static bool ReadFile(string filePath, out string fileContent)
+        {
+            if (!MyAPIGateway.Utilities.FileExistsInWorldStorage(filePath, typeof(string)))
+            {
+                fileContent = default(string);
+                return false;
+            }
+
+            using (var reader = MyAPIGateway.Utilities.ReadFileInWorldStorage(filePath, typeof(string)))
+            {
+                fileContent = reader.ReadToEnd();
+                return true;
+            }
+        }
+
+        public static void WriteFile(string filePath, string fileContent)
+        {
+            using (var writer = MyAPIGateway.Utilities.WriteFileInWorldStorage(filePath, typeof(string)))
+            {
+                writer.Write(fileContent);
+            }
+        }
     }
 }
