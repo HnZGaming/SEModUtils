@@ -36,6 +36,23 @@ namespace HNZ.Utils
             return false;
         }
 
+        public static bool TryGetPlayerByCharacter(IMyCharacter character, out IMyPlayer player)
+        {
+            var players = new List<IMyPlayer>();
+            MyAPIGateway.Players.GetPlayers(players);
+            foreach (var p in players)
+            {
+                if (p.Character == character)
+                {
+                    player = p;
+                    return true;
+                }
+            }
+
+            player = default(IMyPlayer);
+            return false;
+        }
+
         public static void GetCharacters(IMyEntity entity, ICollection<IMyCharacter> characters)
         {
             var grid = entity as IMyCubeGrid;
