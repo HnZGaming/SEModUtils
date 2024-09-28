@@ -21,6 +21,8 @@ namespace HNZ.Utils.MES
         bool _spawning;
         MatrixD _spawningMatrix;
 
+        public event Action<IMyCubeGrid> OnGridSet;
+
         public MESGrid(MESApi mesApi, string id, string spawnGroup)
         {
             _mesApi = mesApi;
@@ -28,16 +30,16 @@ namespace HNZ.Utils.MES
             _spawnGroup = spawnGroup;
         }
 
-        public static bool TryCreateFromExistingGrid(MESApi mesApi, string id, string spawnGroup, IMyCubeGrid existingGrid, out MESGrid grid)
+        public static bool TryCreateFromGrid(MESApi mesApi, string id, string spawnGroup, IMyCubeGrid grid, out MESGrid mesGrid)
         {
-            if (!TestIdentity(existingGrid, spawnGroup, id))
+            if (!TestIdentity(grid, spawnGroup, id))
             {
-                grid = null;
+                mesGrid = null;
                 return false;
             }
 
-            grid = new MESGrid(mesApi, id, spawnGroup);
-            grid.SetGrid(existingGrid);
+            mesGrid = new MESGrid(mesApi, id, spawnGroup);
+            mesGrid.SetGrid(grid);
             return true;
         }
 
@@ -80,6 +82,8 @@ namespace HNZ.Utils.MES
                 _mesApi.RegisterSuccessfulSpawnAction(OnMesAnySuccessfulSpawn, false);
                 Log.Info($"closed grid: {_spawnGroup}");
             }
+
+            OnGridSet = null;
         }
 
         public void Update()
@@ -140,6 +144,8 @@ namespace HNZ.Utils.MES
 
             _mesApi.RegisterSuccessfulSpawnAction(OnMesAnySuccessfulSpawn, false);
             _mesApi.RegisterDespawnWatcher(_grid, OnBossDispawned);
+
+            OnGridSet?.Invoke(_grid);
         }
 
         void OnBossDispawned(IMyCubeGrid grid, string type)
@@ -148,7 +154,7 @@ namespace HNZ.Utils.MES
             Close();
         }
 
-        public void CleanUpIfFarFromCharacters(float radius = 0f)
+        public void CloseIfFarFromCharacters(float radius = 0f)
         {
             if (Closed) return;
 
