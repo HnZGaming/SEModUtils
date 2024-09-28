@@ -19,6 +19,17 @@ namespace HNZ.Utils
     {
         static readonly Logger Log = LoggerManager.Create(nameof(GameUtils));
 
+        public static IEnumerable<T> GetFatBlocks<T>(this IMyCubeGrid grid, string subtypeId) where T : class, IMyCubeBlock
+        {
+            foreach (var block in grid.GetFatBlocks<T>())
+            {
+                if (block.BlockDefinition.SubtypeId == subtypeId)
+                {
+                    yield return block;
+                }
+            }
+        }
+
         public static bool TryGetPlayerBySteamId(ulong steamId, out IMyPlayer player)
         {
             var players = new List<IMyPlayer>();
