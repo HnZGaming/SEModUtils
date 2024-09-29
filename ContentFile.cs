@@ -38,6 +38,7 @@ namespace HNZ.Utils
                 }
             }
 
+            Log.Info($"Creating file: \"{_fileName}\": {Content}");
             WriteFile();
         }
 
