@@ -108,7 +108,7 @@ namespace HNZ.Utils
             return forgeCount;
         }
 
-        public static bool HasAnyGridsInSphere(BoundingSphereD sphere)
+        public static bool HasAnyEntitiesInSphere<T>(BoundingSphereD sphere) where T: IMyEntity
         {
             var entities = ListPool<MyEntity>.Get();
             try
@@ -116,7 +116,7 @@ namespace HNZ.Utils
                 MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, entities);
                 foreach (var entity in entities)
                 {
-                    if (entity is IMyCubeGrid)
+                    if (entity is T)
                     {
                         return true;
                     }
@@ -179,7 +179,7 @@ namespace HNZ.Utils
             return MyAPIGateway.Session.GameplayFrameCounter % (seconds * 60) == 0;
         }
 
-        public static bool TryGetRandomPosition(BoundingSphereD search, float clearance, float maxGravity, out Vector3D position)
+        public static bool TryGetRandomPosition<T>(BoundingSphereD search, float clearance, float maxGravity, out Vector3D position) where T: IMyEntity
         {
             // get a random position
             position = MathUtils.GetRandomPosition(search);
@@ -191,7 +191,7 @@ namespace HNZ.Utils
 
             // check for space
             var sphere = new BoundingSphereD(position, clearance);
-            if (HasAnyGridsInSphere(sphere)) return false;
+            if (HasAnyEntitiesInSphere<T>(sphere)) return false;
 
             return true;
         }
