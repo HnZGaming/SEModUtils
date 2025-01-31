@@ -43,6 +43,30 @@ namespace HNZ.Utils
                 SmoothDamp(current.Z, target.Z, ref currentVelocity.Z, smoothTime, maxSpeed, deltaTime));
         }
 
+        public static int WeightedRandom(float[] weights)
+        {
+            var totalWeight = 0f;
+            foreach (var weight in weights)
+            {
+                totalWeight += weight;
+            }
+
+            var random = new Random();
+            var randomNumber = random.NextDouble() * totalWeight;
+
+            for (var i = 0; i < weights.Length; i++)
+            {
+                if (randomNumber < weights[i])
+                {
+                    return i;
+                }
+
+                randomNumber -= weights[i];
+            }
+
+            return weights.Length - 1;
+        }
+
         public static float GetRandomNormal()
         {
             return (float)MyRandom.Instance.Next(0, 100) / 100;
