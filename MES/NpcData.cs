@@ -11,13 +11,10 @@ namespace HNZ.Utils.MES
         static readonly Guid Key = new Guid("29FFD684-13D7-4045-BF76-CD48BF80E36A"); // copied from mes
 
         [ProtoMember(4)]
-        string SpawnGroupName;
+        public string SpawnGroupName;
 
-        public static bool TestSpawnGroup(IMyCubeGrid grid, string spawnGroup)
-        {
-            NpcData npcData;
-            return TryGetNpcData(grid, out npcData) && npcData.SpawnGroupName == spawnGroup;
-        }
+        [ProtoMember(42)]
+        public string Context; // arbitrary user data via MESApi
 
         public static bool TryGetNpcData(IMyCubeGrid grid, out NpcData npcData)
         {
