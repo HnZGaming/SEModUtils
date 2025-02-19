@@ -13,6 +13,9 @@ namespace HNZ.Utils.MES
         [ProtoMember(4)]
         public string SpawnGroupName;
 
+        [ProtoMember(7)]
+        public string OriginalPrefabId;
+
         [ProtoMember(42)]
         public string Context; // arbitrary user data via MESApi
 
